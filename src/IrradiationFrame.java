@@ -3,7 +3,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
-import ij.process.ImageProcessor;
 import ij.ImageStack;
 import ij.process.ShortProcessor;
 import java.awt.Point;
@@ -18,7 +17,6 @@ import ij.Prefs;
 import java.awt.Color;
 import java.io.File;
 import mmcorej.CMMCore;
-import mmcorej.TaggedImage;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
@@ -335,22 +333,19 @@ public class IrradiationFrame extends javax.swing.JFrame {
                     .addComponent(jRB_ROImanager)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jB_Move_)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jB_Reload, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jRadioButton1)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 26, Short.MAX_VALUE))
+                .addComponent(jB_Move_)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jB_Reload, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jRadioButton1))
                     .addComponent(jB_StartStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
 
         jLabel_status.setText("Status : ??");
@@ -451,8 +446,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
             pointList.add(new Point(0,-(int)(fieldSize*gain/2)));
             logMessage(" Points: " + pointList.toString());
             
-        } catch(Exception e){
-            logMessage(" Error : "+ e.toString());
+        } catch(Exception error){
+            logMessage(" Error : "+ error.toString());
         }
         
         // envoi des pointList au CRio
@@ -503,8 +498,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
             ImagePlus imp = new ImagePlus("Calibration", iStack);
             imp.show();
             
-        } catch (Exception e) {
-            logMessage(" Acquisition error : " + e.toString());
+        } catch (Exception error) {
+            logMessage(" Acquisition error : " + error.toString());
             crio.stopScan();
         }
     }//GEN-LAST:event_jB_Acquire_ActionPerformed
@@ -571,8 +566,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
             e = solution.getEntry(2);
             f = solutionY.getEntry(2);
             
-        } catch(Exception e){
-            logMessage(" Error: " + e.toString());
+        } catch(Exception error){
+            logMessage(" Error: " + error.toString());
         }
     }//GEN-LAST:event_jB_Process_ActionPerformed
 
@@ -725,8 +720,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
         try{
             jCB_patterns.setSelectedItem("point.txt");
         }
-        catch (Exception e){
-            logMessage(e.toString());
+        catch (Exception error){
+            logMessage(error.toString());
         }
     }
     
