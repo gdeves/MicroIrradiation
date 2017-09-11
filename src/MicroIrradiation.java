@@ -26,6 +26,7 @@ public class MicroIrradiation implements MMPlugin {
       } catch (IOException ex) {
           Logger.getLogger(MicroIrradiation.class.getName()).log(Level.SEVERE, null, ex);
       }
+      
       myFrame_.setVisible(true);
       
       // Used to change the background layout of the form.  Does not work on Windows

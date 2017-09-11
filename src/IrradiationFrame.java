@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import ij.Prefs;
 import java.awt.Color;
+import java.io.File;
 import mmcorej.CMMCore;
 import mmcorej.TaggedImage;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -67,6 +68,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
        crio = new CRionScanner();
        Boolean isInitialized=crio.initialize();
        if (isInitialized) getStatus();
+       initialize_pattern_list();
     }
     
     /**
@@ -106,6 +108,11 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jRB_ROImanager = new javax.swing.JRadioButton();
         jLabel1 = new javax.swing.JLabel();
         jB_StartStop = new javax.swing.JButton();
+        jCB_patterns = new javax.swing.JComboBox();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jB_Reload = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
         jPanel_Status = new javax.swing.JPanel();
         jLabel_status = new javax.swing.JLabel();
         jCheckBox_showFlux = new javax.swing.JCheckBox();
@@ -211,7 +218,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(jTF_Delay_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jB_Acquire_))
-                .addGap(18, 18, 18)
                 .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jP_Calibration_Layout.createSequentialGroup()
                         .addGap(25, 25, 25)
@@ -259,6 +265,34 @@ public class IrradiationFrame extends javax.swing.JFrame {
             }
         });
 
+        jCB_patterns.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCB_patterns.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCB_patternsActionPerformed(evt);
+            }
+        });
+
+        jRadioButton1.setSelected(true);
+        jRadioButton1.setText("Use pattern");
+        jRadioButton1.setEnabled(false);
+
+        jB_Reload.setForeground(new java.awt.Color(255, 255, 255));
+        jB_Reload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/reload.png"))); // NOI18N
+        jB_Reload.setBorder(null);
+        jB_Reload.setBorderPainted(false);
+        jB_Reload.setIconTextGap(0);
+        jB_Reload.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jB_Reload.setOpaque(false);
+        jB_Reload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jB_ReloadActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Pattern size (µm) :");
+
+        jTextField1.setText("10");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -267,15 +301,29 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jB_Move_, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jB_StartStop))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
                         .addComponent(jRB_resultsTable)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jRB_ROImanager)))
+                        .addComponent(jRB_ROImanager))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jRadioButton1)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jCB_patterns, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(jB_Move_, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jB_Reload, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jB_StartStop)))
                 .addGap(34, 34, 34))
         );
         jPanel2Layout.setVerticalGroup(
@@ -287,10 +335,22 @@ public class IrradiationFrame extends javax.swing.JFrame {
                     .addComponent(jRB_ROImanager)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jB_Move_)
-                    .addComponent(jB_StartStop))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jB_Move_)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jB_Reload, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jRadioButton1)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 26, Short.MAX_VALUE))
+                    .addComponent(jB_StartStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jLabel_status.setText("Status : ??");
@@ -346,8 +406,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jP_Calibration_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel_Status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -373,7 +433,10 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private void jTF_Delay_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTF_Delay_ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTF_Delay_ActionPerformed
-
+    /**
+     * Acquire a stack for beam calibration
+     * @param evt 
+     */
     private void jB_Acquire_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jB_Acquire_ActionPerformed
         int fieldSize = Integer.parseInt(jTF_ImageSize_.getText()); // taille image ( 500 µm par defaut) 
         float energy = Float.parseFloat(jTF_BeamEnergy_.getText()); // energie ( 3 MeV par defaut)
@@ -445,7 +508,10 @@ public class IrradiationFrame extends javax.swing.JFrame {
             crio.stopScan();
         }
     }//GEN-LAST:event_jB_Acquire_ActionPerformed
-
+    /**
+     * Process calibration from a stack of 3 beam position
+     * @param evt 
+     */
     private void jB_Process_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jB_Process_ActionPerformed
         try{
         // recupere un stack d'image existantes, applique traitement basique (threshold, "analyze particles", recupere coordonnees X Y)
@@ -510,7 +576,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jB_Process_ActionPerformed
 
-    private void jB_Move_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jB_Move_ActionPerformed
+    private void jB_Move_ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         
         if (jRB_resultsTable.isSelected()){
             List<Point>  pointList = new ArrayList<Point>();
@@ -525,12 +591,15 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 logMessage("#X: " + String.valueOf(x) + " #Y: " + String.valueOf(y));
                 Point p = new Point((int)(a*x+b*y+e), (int)(c*x+d*y+f));
                 pointList.add(p);
-            }
+    }
             crio.sendPositionList(pointList);
             logMessage("End-----");
         }
-    }//GEN-LAST:event_jB_Move_ActionPerformed
-    
+    }                                        
+            
+    /**
+     * Get live CRIO status
+     */
     private void getStatus(){
         statusThreadIsOn = !statusThreadIsOn;
         
@@ -567,11 +636,9 @@ public class IrradiationFrame extends javax.swing.JFrame {
             statusThreadIsOn=false;
         }
     }
-    private void jRB_resultsTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRB_resultsTableActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jRB_resultsTableActionPerformed
-
-    private void jB_StartStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jB_StartStopActionPerformed
+                                                  
+        
+    private void jB_StartStopActionPerformed(java.awt.event.ActionEvent evt) {                                             
         if (jB_StartStop.getText().equals("Start")) {
             crio.startScan();
             jB_StartStop.setForeground(Color.red);
@@ -582,8 +649,12 @@ public class IrradiationFrame extends javax.swing.JFrame {
             jB_StartStop.setForeground(Color.black);
             jB_StartStop.setText("Start");
         }
-    }//GEN-LAST:event_jB_StartStopActionPerformed
-
+    }                                            
+   
+    /**
+     * Things done when closing the window
+     * @param evt 
+     */
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         jB_connectToRio.setVisible(true);
         crio.exit();
@@ -591,7 +662,12 @@ public class IrradiationFrame extends javax.swing.JFrame {
         isBeamOn=false;
         dispose();
     }//GEN-LAST:event_formWindowClosing
-
+    
+    /**
+     * Connect to CRIO when connexion was lost
+     * Appearance of the button depends on the live status (eg. only when status is unknown)
+     * @param evt 
+     */
     private void jB_connectToRioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jB_connectToRioActionPerformed
        try{
            
@@ -603,6 +679,57 @@ public class IrradiationFrame extends javax.swing.JFrame {
        }
     }//GEN-LAST:event_jB_connectToRioActionPerformed
 
+    private void jB_ReloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jB_ReloadActionPerformed
+        initialize_pattern_list();
+    }//GEN-LAST:event_jB_ReloadActionPerformed
+
+    private void jCB_patternsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCB_patternsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCB_patternsActionPerformed
+
+//GEN-FIRST:event_jB_StartStopActionPerformed
+ 
+//GEN-LAST:event_jB_StartStopActionPerformed
+
+    private void jRB_resultsTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRB_resultsTableActionPerformed
+        //dwfgqsdfg TODO add your handling code here:
+    }//GEN-LAST:event_jRB_resultsTableActionPerformed
+
+//GEN-FIRST:event_jB_Move_ActionPerformed
+ 
+//GEN-LAST:event_jB_Move_ActionPerformed
+    private ArrayList<String> patternList(String path) {
+    ArrayList<String> patterns=new ArrayList();
+    File myDir=new File(path);
+    File[] myList=myDir.listFiles();
+
+    for(File elementListe : myList)
+    {
+        if(elementListe.isFile())
+        {
+           patterns.add(elementListe.getName());
+        }
+    }
+    return patterns;
+}
+    /**
+     * Create a list of available patterns
+     */
+    private void initialize_pattern_list(){
+        String path=IJ.getDirectory("imagej")+"mmplugins\\MicroIrradiation\\Patterns\\";
+        ArrayList<String> patterns=patternList(path);
+        jCB_patterns.removeAllItems();
+        for (int index=0;index<patterns.size();index++){
+            jCB_patterns.addItem(patterns.get(index));
+        }
+        try{
+            jCB_patterns.setSelectedItem("point.txt");
+        }
+        catch (Exception e){
+            logMessage(e.toString());
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -613,23 +740,28 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private javax.swing.JButton jB_Acquire_;
     private javax.swing.JButton jB_Move_;
     private javax.swing.JButton jB_Process_;
+    private javax.swing.JButton jB_Reload;
     private javax.swing.JButton jB_StartStop;
     private javax.swing.JButton jB_connectToRio;
+    private javax.swing.JComboBox jCB_patterns;
     private javax.swing.JCheckBox jCheckBox_showFlux;
     private javax.swing.JLabel jLab_Beam_Energy_;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel_status;
     private javax.swing.JPanel jP_Calibration_;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel_Status;
     private javax.swing.JRadioButton jRB_ROImanager;
     private javax.swing.JRadioButton jRB_resultsTable;
+    private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JTextField jTF_BeamEnergy_;
     private javax.swing.JTextField jTF_Delay_;
     private javax.swing.JTextField jTF_ImageSize_;
     private javax.swing.JTextField jTF_ImageTreshold_;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
