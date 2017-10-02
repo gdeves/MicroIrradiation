@@ -5,6 +5,7 @@ import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
 import ij.ImageStack;
 import ij.process.ShortProcessor;
+import ij.plugin.frame.RoiManager;
 import java.awt.Point;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -17,12 +18,17 @@ import ij.Prefs;
 import java.awt.Color;
 import java.io.File;
 import mmcorej.CMMCore;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import org.micromanager.api.ScriptInterface;
 
 /*
@@ -110,7 +116,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jRadioButton1 = new javax.swing.JRadioButton();
         jB_Reload = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        jTF_patternSize = new javax.swing.JTextField();
         jPanel_Status = new javax.swing.JPanel();
         jLabel_status = new javax.swing.JLabel();
         jCheckBox_showFlux = new javax.swing.JCheckBox();
@@ -132,6 +138,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         jTF_BeamEnergy_.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTF_BeamEnergy_.setText("3.0");
+        jTF_BeamEnergy_.setNextFocusableComponent(jTF_ImageSize_);
         jTF_BeamEnergy_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTF_BeamEnergy_ActionPerformed(evt);
@@ -142,6 +149,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         jTF_ImageSize_.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTF_ImageSize_.setText("512");
+        jTF_ImageSize_.setNextFocusableComponent(jTF_ImageTreshold_);
         jTF_ImageSize_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTF_ImageSize_ActionPerformed(evt);
@@ -152,6 +160,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         jTF_ImageTreshold_.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTF_ImageTreshold_.setText("50");
+        jTF_ImageTreshold_.setNextFocusableComponent(jB_Acquire_);
         jTF_ImageTreshold_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTF_ImageTreshold_ActionPerformed(evt);
@@ -162,6 +171,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         jTF_Delay_.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTF_Delay_.setText("3000");
+        jTF_Delay_.setNextFocusableComponent(jTF_BeamEnergy_);
         jTF_Delay_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTF_Delay_ActionPerformed(evt);
@@ -169,6 +179,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         });
 
         jB_Acquire_.setText("Acquire stack");
+        jB_Acquire_.setNextFocusableComponent(jB_Process_);
         jB_Acquire_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jB_Acquire_ActionPerformed(evt);
@@ -176,6 +187,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         });
 
         jB_Process_.setText("Calibrate stack");
+        jB_Process_.setNextFocusableComponent(jRB_resultsTable);
         jB_Process_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jB_Process_ActionPerformed(evt);
@@ -236,6 +248,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Irradiation"));
 
         jB_Move_.setText("Get positions & send to RIO");
+        jB_Move_.setNextFocusableComponent(jB_StartStop);
         jB_Move_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jB_Move_ActionPerformed(evt);
@@ -245,6 +258,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         buttonGroup1.add(jRB_resultsTable);
         jRB_resultsTable.setSelected(true);
         jRB_resultsTable.setText("...from results table");
+        jRB_resultsTable.setNextFocusableComponent(jRB_ROImanager);
         jRB_resultsTable.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jRB_resultsTableActionPerformed(evt);
@@ -253,10 +267,12 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         buttonGroup1.add(jRB_ROImanager);
         jRB_ROImanager.setText("...from ROI manager");
+        jRB_ROImanager.setNextFocusableComponent(jCB_patterns);
 
         jLabel1.setText("Get positions ");
 
         jB_StartStop.setText("Start");
+        jB_StartStop.setNextFocusableComponent(jB_connectToRio);
         jB_StartStop.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jB_StartStopActionPerformed(evt);
@@ -264,6 +280,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         });
 
         jCB_patterns.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCB_patterns.setNextFocusableComponent(jTF_patternSize);
         jCB_patterns.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCB_patternsActionPerformed(evt);
@@ -289,7 +306,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         jLabel5.setText("Pattern size (µm) :");
 
-        jTextField1.setText("10");
+        jTF_patternSize.setText("10");
+        jTF_patternSize.setNextFocusableComponent(jB_Move_);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -299,60 +317,65 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
-                        .addComponent(jRB_resultsTable)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jRB_ROImanager))
+                        .addComponent(jRadioButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jB_Reload, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                        .addComponent(jRadioButton1)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jCB_patterns, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(jB_Move_, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jB_Reload, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(21, 21, 21)
                                 .addComponent(jLabel5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(jTF_patternSize, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(18, 18, 18)
+                                .addComponent(jRB_resultsTable)
+                                .addGap(18, 18, 18)
+                                .addComponent(jRB_ROImanager)))
+                        .addGap(73, 73, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jB_Move_, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jB_StartStop)))
-                .addGap(34, 34, 34))
+                        .addComponent(jB_StartStop)
+                        .addGap(80, 80, 80))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRB_resultsTable)
-                    .addComponent(jRB_ROImanager)
-                    .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jB_Move_)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jB_Reload, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jRadioButton1))
-                    .addComponent(jB_StartStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jLabel1)
+                        .addComponent(jRB_resultsTable))
+                    .addComponent(jRB_ROImanager, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jRadioButton1)
+                        .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jB_Reload, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(5, 5, 5)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTF_patternSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(37, Short.MAX_VALUE))
+                    .addComponent(jB_StartStop, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
+                    .addComponent(jB_Move_))
+                .addContainerGap())
         );
 
         jLabel_status.setText("Status : ??");
 
         jCheckBox_showFlux.setText("show data flux");
+        jCheckBox_showFlux.setNextFocusableComponent(jTF_Delay_);
 
         jB_connectToRio.setText("connect to RIO");
+        jB_connectToRio.setNextFocusableComponent(jCheckBox_showFlux);
         jB_connectToRio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jB_connectToRioActionPerformed(evt);
@@ -566,9 +589,19 @@ public class IrradiationFrame extends javax.swing.JFrame {
             e = solution.getEntry(2);
             f = solutionY.getEntry(2);
             
-        } catch(Exception error){
+        } catch(NumberFormatException error){
             logMessage(" Error: " + error.toString());
-        }
+        } catch (DimensionMismatchException error) {
+            logMessage(" Error: " + error.toString());
+       } catch (NoDataException error) {
+           logMessage(" Error: " + error.toString());
+       } catch (NullArgumentException error) {
+           logMessage(" Error: " + error.toString());
+       } catch (OutOfRangeException error) {
+           logMessage(" Error: " + error.toString());
+       } catch (SingularMatrixException error) {
+           logMessage(" Error: " + error.toString());
+       }
     }//GEN-LAST:event_jB_Process_ActionPerformed
 
     private void jB_Move_ActionPerformed(java.awt.event.ActionEvent evt) {                                         
@@ -589,6 +622,20 @@ public class IrradiationFrame extends javax.swing.JFrame {
     }
             crio.sendPositionList(pointList);
             logMessage("End-----");
+        }
+        else if (jRB_ROImanager.isSelected()){
+            RoiManager rm = RoiManager.getInstance();
+            if (rm==null) rm = new RoiManager();
+            Analyzer.setMeasurement(32,true);
+            //rm.runCommand("Multi Measure");
+            ij.gui.Roi ra[] = rm.getRoisAsArray();
+            for (ij.gui.Roi r:ra){
+                double points[]=r.getContourCentroid();
+                logMessage("X: " + Double.toString(points[0]));
+                logMessage("Y: " + Double.toString(points[1]));
+                
+            }
+            
         }
     }                                        
             
@@ -757,6 +804,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private javax.swing.JTextField jTF_Delay_;
     private javax.swing.JTextField jTF_ImageSize_;
     private javax.swing.JTextField jTF_ImageTreshold_;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTF_patternSize;
     // End of variables declaration//GEN-END:variables
 }
