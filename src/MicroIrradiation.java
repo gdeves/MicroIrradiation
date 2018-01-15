@@ -56,7 +56,7 @@ public class MicroIrradiation implements MMPlugin {
    }
    
    public String getCopyright() {
-      return "University of Bordeaux, 2017";
+      return "University of Bordeaux, 2018";
    }
     
 }

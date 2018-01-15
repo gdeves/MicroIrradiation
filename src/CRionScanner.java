@@ -30,16 +30,15 @@ import ij.Prefs;
     private BufferedInputStream reader = null;
     public Socket socketIn;
     public Socket socketOut;
-    //private int x,y;
-    //private Point p = new Point(0,0);
     public Charset charset;
     public Buffer byteArray;
     public DataOutputStream out;
-    private int inputPort=6300;
-    private int outputPort=6400;
-    private String IP="10.13.0.29";
-    private int beamCoefficient = 29;
+    private int inputPort;
+    private int outputPort;
+    private String IP;
+    private int beamCoefficient;
     public Prefs prefs;
+    private double a,b,c,d,e,f;
     
     
     
@@ -52,11 +51,16 @@ import ij.Prefs;
     public Boolean initialize() throws IOException {
 	try {	
             //Stored values
-            
-            Prefs.set("crio.inputPort", (int)(6300));
-               
-            IJ.log("test prefs " + String.valueOf(Prefs.getInt("crio.inputPort",0)) + "fin");
-            
+            inputPort= Prefs.getInt(".crio.inputPort",6300);
+            outputPort= Prefs.getInt(".crio.outputPort",6400);
+            IP=Prefs.getString(".crio.IP", "10.13.0.29");
+            beamCoefficient=Prefs.getInt(".crio.beamCoefficient", 29);
+            a=Prefs.getDouble(".crio.calib.a", 40);
+            b=Prefs.getDouble(".crio.calib.b", -40);
+            c=Prefs.getDouble(".crio.calib.c", 1);
+            d=Prefs.getDouble(".crio.calib.d", 1);
+            e=Prefs.getDouble(".crio.calib.e", 0);
+            f=Prefs.getDouble(".crio.calib.f", 0);
             
             // Server connexion
             socketIn = new Socket(IP, inputPort); 
@@ -139,7 +143,89 @@ import ij.Prefs;
     public void setIP(String IP){
         this.IP=IP;
     }
-     
+    /**
+     * CRIO calibration
+     * @param a 
+     */
+    public void set_calib_a(double a){
+        this.a=a;
+    }
+        /**
+     * CRIO calibration
+     * @param b 
+     */
+    public void set_calib_b(double b){
+        this.b=b;
+    }
+        /**
+     * CRIO calibration
+     * @param c 
+     */
+    public void set_calib_c(double c){
+        this.c=c;
+    }
+        /**
+     * CRIO calibration
+     * @param d 
+     */
+    public void set_calib_d(double d){
+        this.d=d;
+    }
+        /**
+     * CRIO calibration
+     * @param e 
+     */
+    public void set_calib_e(double e){
+        this.e=e;
+    }
+        /**
+     * CRIO calibration
+     * @param f 
+     */
+    public void set_calib_f(double f){
+        this.f=f;
+    }
+        /**
+     * CRIO calibration
+     * @param a 
+     */
+    public void set_calib(double a,double b,double c,double d,double e,double f){
+        this.a=a;
+        this.b=b;
+        this.c=c;
+        this.d=d;
+        this.e=e;
+        this.f=f;
+    }
+    /**
+     * Transform (x,y) image coordinate to beam position
+     * @param x
+     * @param y
+     * @return 
+     */
+    public Point MicroscopeToBeam (double x, double y){
+       Point p= new Point((int)(a*x+b*y+e), (int)(c*x+d*y+f));
+       return p;
+    }
+    /**
+     * Get the correxponding x position in image reference from a beam position
+     * @param p, a beam position
+     * @return 
+     */
+    public double BeamToMicroscopeX (Point p){
+        double x=(int)((p.getX()-b*p.getY()-c)/a);
+        return x;
+    }
+        /**
+     * Get the correxponding Y position in image reference from a beam position
+     * @param p, a beam position
+     * @return 
+     */
+    public double BeamToMicroscopeY (Point p){
+        double x=(int)((p.getX()-e*p.getY()-f)/d);
+        return x;
+    }
+    
     /**
     * Setting the scanning speed (ms/pt)
     * @param speed 
@@ -239,6 +325,8 @@ import ij.Prefs;
         } catch (Exception e) {      
         }
     }
+    
+    
     /**
     * Format the message to be sent to compact rio
     * @param value
@@ -284,6 +372,17 @@ import ij.Prefs;
                 sendMessage("000014GET SCAN PARAM");
             } catch (Exception e) {
         }
+        }
+        /**
+         * Converts a beam position into digital value for display
+         * @param position
+         * @return 
+         */
+        public Point makeDigital(double x, double y){
+            x=  (254*x/1023) +1;
+            y=  (254*y/1023)+1;
+            Point p=new Point((byte)x,(byte)y);
+            return p;
         }
         /**
          * Starts the beam scanning
@@ -384,7 +483,7 @@ import ij.Prefs;
     * Send a list of beam position to the compact RIO
     * @param positionsList, liste des positions à envoyer
     */
-    public void sendPositionList(List<Point> positionsList) {
+    public void sendPositionList(List<Point> positionsList, List<Point> digitalList) {
             // Création d'un bytebuffer de 8 octets que l'on remplit avec x, y , dx
             ByteBuffer positionsBuffer = ByteBuffer.allocate(8*positionsList.size());
             logMessage("N points : " + positionsList.size());
@@ -397,9 +496,11 @@ import ij.Prefs;
             }
             
             //Envoi de toutes les valeurs digitales des points
-            for(int index=0; index < positionsList.size(); index++) {
-                byte dx = 0;
-                byte dy = 0;
+            for(int index=0; index < digitalList.size(); index++) {
+                byte dx = (byte) digitalList.get(index).x;
+                byte dy = (byte) digitalList.get(index).y;
+                logMessage("dx: " + String.valueOf(dx));
+                logMessage("dy: " + String.valueOf(dy));
                 short p;
                 //Si c'est le dernier point de la liste, bit 15=1
                 if (index==positionsList.size()-1)
@@ -421,7 +522,7 @@ import ij.Prefs;
     * Send a list of beam position to the compact RIO
     * @param positionsList, liste des positions à envoyer
     */
-    public void sendPositionList(List<Point> positionsList, int TimeMode, short value) {
+    public void sendPositionList(List<Point> positionsList, List<Point> digitalList,int TimeMode, short value) {
         
         
         // Création d'un bytebuffer de 8 octets que l'on remplit avec x, y , dx
@@ -444,9 +545,9 @@ import ij.Prefs;
             //Ion per point mode
             case 0:
                 //Envoi de toutes les valeurs digitales des points
-                for(int index=0; index < positionsList.size(); index++) {
-                    byte dx = 0;
-                    byte dy = 0;
+                for(int index=0; index < digitalList.size(); index++) {
+                    byte dx = (byte) digitalList.get(index).x;
+                    byte dy = (byte) digitalList.get(index).y;
                     short p;
                     //Si c'est le dernier point de la liste, bit 15=1 et bit14=1
                     //-16384 = 0x1100 0000 0000 0000
@@ -463,9 +564,9 @@ import ij.Prefs;
             //Time per point mode    
             case 1:
                 //Envoi de toutes les valeurs digitales des points
-                for(int index=0; index < positionsList.size(); index++) {
-                    byte dx = 0;
-                    byte dy = 0;
+                for(int index=0; index < digitalList.size(); index++) {
+                    byte dx = (byte) digitalList.get(index).x;
+                    byte dy = (byte) digitalList.get(index).y;
                     short p;
                     //Si c'est le dernier point de la liste, bit 15=1 et bit14=0
                     //-32768 = 0x1000 0000 0000 0000
@@ -506,8 +607,8 @@ import ij.Prefs;
             buff.putShort(x).putShort(y);
 
 
-            dx = 0; //(byte) ((x+32768)/256);
-            dy = 0;
+            dx = (byte)makeDigital((double)x,(double)y).getX();
+            dy = (byte)makeDigital((double)x,(double)y).getY();
             p = -32768;
 
             buff.put(dx).put(dy).putShort(p);

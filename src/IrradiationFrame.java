@@ -44,7 +44,6 @@ import org.micromanager.api.ScriptInterface;
 public class IrradiationFrame extends javax.swing.JFrame {
    private final ScriptInterface gui_;
    private final CMMCore core_;
-   //private Preferences prefs_;
    public CRionScanner crio;
    //private ImageProcessor imProc;
    private final NumberFormat nf_;
@@ -108,6 +107,10 @@ public class IrradiationFrame extends javax.swing.JFrame {
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
+        jPanel_Status = new javax.swing.JPanel();
+        jLabel_status = new javax.swing.JLabel();
+        jB_connectToRio = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         jP_Calibration_ = new javax.swing.JPanel();
         jLab_Beam_Energy_ = new javax.swing.JLabel();
         jTF_BeamEnergy_ = new javax.swing.JTextField();
@@ -115,14 +118,11 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jTF_ImageSize_ = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jTF_ImageTreshold_ = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
-        jTF_Delay_ = new javax.swing.JTextField();
         jB_Acquire_ = new javax.swing.JButton();
         jB_Process_ = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
         jTF_minsize = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
-        jB_BuildAndSend_ = new javax.swing.JButton();
         jRB_resultsTable = new javax.swing.JRadioButton();
         jRB_ROImanager = new javax.swing.JRadioButton();
         jLabel1 = new javax.swing.JLabel();
@@ -143,17 +143,17 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jRB_c4 = new javax.swing.JRadioButton();
         jRB_mus = new javax.swing.JRadioButton();
         jRB_ms = new javax.swing.JRadioButton();
-        jLabel_timeout = new javax.swing.JLabel();
-        jTF_timeout = new javax.swing.JTextField();
-        jPanel_Status = new javax.swing.JPanel();
-        jLabel_status = new javax.swing.JLabel();
-        jCheckBox_showFlux = new javax.swing.JCheckBox();
-        jB_connectToRio = new javax.swing.JButton();
-        jCB_basic = new javax.swing.JCheckBox();
+        jLabel9 = new javax.swing.JLabel();
+        jB_BuildAndSend_ = new javax.swing.JButton();
+        jTF_NScans = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jTF_command = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jB_send = new javax.swing.JButton();
+        jCB_basic = new javax.swing.JCheckBox();
+        jCheckBox_showFlux = new javax.swing.JCheckBox();
+        jLabel_timeout = new javax.swing.JLabel();
+        jTF_timeout = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Microbeam irradiation");
@@ -164,8 +164,42 @@ public class IrradiationFrame extends javax.swing.JFrame {
             }
         });
 
-        jP_Calibration_.setBorder(javax.swing.BorderFactory.createTitledBorder("Calibration"));
+        jLabel_status.setText("Status : ??");
+
+        jB_connectToRio.setText("connect to RIO");
+        jB_connectToRio.setNextFocusableComponent(jCheckBox_showFlux);
+        jB_connectToRio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jB_connectToRioActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel_StatusLayout = new javax.swing.GroupLayout(jPanel_Status);
+        jPanel_Status.setLayout(jPanel_StatusLayout);
+        jPanel_StatusLayout.setHorizontalGroup(
+            jPanel_StatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel_StatusLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel_status, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(jB_connectToRio)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel_StatusLayout.setVerticalGroup(
+            jPanel_StatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel_StatusLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel_StatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel_status)
+                    .addComponent(jB_connectToRio))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        jP_Calibration_.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jP_Calibration_.setName("jP_Calibration_"); // NOI18N
+        jP_Calibration_.setVerifyInputWhenFocusTarget(false);
 
         jLab_Beam_Energy_.setText("Beam energy (MeV) : ");
 
@@ -189,7 +223,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
             }
         });
 
-        jLabel3.setText("Image treshold");
+        jLabel3.setText("Image treshold : ");
 
         jTF_ImageTreshold_.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTF_ImageTreshold_.setText("50");
@@ -197,17 +231,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jTF_ImageTreshold_.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTF_ImageTreshold_ActionPerformed(evt);
-            }
-        });
-
-        jLabel4.setText("Delay (ms)");
-
-        jTF_Delay_.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTF_Delay_.setText("0");
-        jTF_Delay_.setNextFocusableComponent(jTF_BeamEnergy_);
-        jTF_Delay_.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTF_Delay_ActionPerformed(evt);
             }
         });
 
@@ -248,39 +271,35 @@ public class IrradiationFrame extends javax.swing.JFrame {
                         .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
                             .addComponent(jLabel3)
-                            .addComponent(jLabel4))
-                        .addGap(44, 44, 44))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jP_Calibration_Layout.createSequentialGroup()
-                        .addComponent(jLab_Beam_Energy_)
-                        .addGap(18, 18, 18)))
-                .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jP_Calibration_Layout.createSequentialGroup()
+                            .addComponent(jLab_Beam_Energy_))
+                        .addGap(22, 22, 22)
                         .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTF_BeamEnergy_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTF_Delay_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTF_ImageSize_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(139, 139, 139)
-                        .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jB_Acquire_, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jB_Process_, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jP_Calibration_Layout.createSequentialGroup()
+                                .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTF_BeamEnergy_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jTF_ImageSize_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(100, 100, 100))
+                            .addGroup(jP_Calibration_Layout.createSequentialGroup()
+                                .addComponent(jTF_ImageTreshold_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTF_minsize, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jP_Calibration_Layout.createSequentialGroup()
-                        .addComponent(jTF_ImageTreshold_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel8)
+                        .addComponent(jB_Acquire_, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTF_minsize, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jB_Process_, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(208, Short.MAX_VALUE))
         );
         jP_Calibration_Layout.setVerticalGroup(
             jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jP_Calibration_Layout.createSequentialGroup()
-                .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jTF_Delay_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jB_Acquire_))
+                .addContainerGap()
                 .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jP_Calibration_Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
+                        .addGap(4, 4, 4)
+                        .addComponent(jLab_Beam_Energy_)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(jTF_ImageSize_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -290,22 +309,20 @@ public class IrradiationFrame extends javax.swing.JFrame {
                             .addComponent(jTF_ImageTreshold_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel8)
                             .addComponent(jTF_minsize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTF_BeamEnergy_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jB_Process_)
-                        .addComponent(jLab_Beam_Energy_)))
-                .addGap(0, 21, Short.MAX_VALUE))
+                    .addComponent(jTF_BeamEnergy_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jB_Acquire_)
+                    .addComponent(jB_Process_))
+                .addContainerGap(103, Short.MAX_VALUE))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Irradiation"));
+        jTabbedPane1.addTab("Calibration", jP_Calibration_);
+        jP_Calibration_.getAccessibleContext().setAccessibleName("calibration");
+        jP_Calibration_.getAccessibleContext().setAccessibleDescription("");
+        jP_Calibration_.getAccessibleContext().setAccessibleParent(jTabbedPane1);
 
-        jB_BuildAndSend_.setText("Build position list & send to RIO");
-        jB_BuildAndSend_.setNextFocusableComponent(jB_StartStop);
-        jB_BuildAndSend_.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jB_BuildAndSend_ActionPerformed(evt);
-            }
-        });
+        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         buttonGroup1.add(jRB_resultsTable);
         jRB_resultsTable.setSelected(true);
@@ -406,10 +423,18 @@ public class IrradiationFrame extends javax.swing.JFrame {
         buttonGroup4.add(jRB_ms);
         jRB_ms.setText("ms");
 
-        jLabel_timeout.setText("Timeout (ms): ");
+        jLabel9.setText("Number of scans: ");
 
-        jTF_timeout.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTF_timeout.setText("10000");
+        jB_BuildAndSend_.setText("Build position list & send to RIO");
+        jB_BuildAndSend_.setNextFocusableComponent(jB_StartStop);
+        jB_BuildAndSend_.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jB_BuildAndSend_ActionPerformed(evt);
+            }
+        });
+
+        jTF_NScans.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTF_NScans.setText("1");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -435,43 +460,48 @@ public class IrradiationFrame extends javax.swing.JFrame {
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(2, 2, 2)
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                            .addComponent(jRB_ions)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(jTF_ions, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(jLabel6)
-                                            .addGap(7, 7, 7)
-                                            .addComponent(jRB_c1))
-                                        .addComponent(jB_BuildAndSend_, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                     .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(jRB_time)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jTF_time, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(8, 8, 8)
-                                        .addComponent(jRB_mus)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jRB_ms)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRB_c2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRB_c3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRB_c4)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel_timeout)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTF_timeout, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jB_StartStop)))
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(8, 8, 8)
+                                                .addComponent(jLabel9)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jTF_NScans, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(jB_BuildAndSend_))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jB_StartStop))
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addComponent(jRB_ions)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jTF_ions, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jLabel6)
+                                                .addGap(7, 7, 7)
+                                                .addComponent(jRB_c1)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jRB_c2)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jRB_c3)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jRB_c4))
+                                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addComponent(jRB_time)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jTF_time, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(8, 8, 8)
+                                                .addComponent(jRB_mus)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jRB_ms)))
+                                        .addGap(0, 56, Short.MAX_VALUE))))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addGap(18, 18, 18)
                                 .addComponent(jRB_resultsTable)
                                 .addGap(18, 18, 18)
                                 .addComponent(jRB_ROImanager)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(114, 114, 114))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -484,86 +514,48 @@ public class IrradiationFrame extends javax.swing.JFrame {
                     .addComponent(jRB_ROImanager, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jRadioButton1)
+                        .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jB_Reload, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(5, 5, 5)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTF_patternSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRB_ions)
+                    .addComponent(jTF_ions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(jRB_c1)
+                    .addComponent(jRB_c2)
+                    .addComponent(jRB_c3)
+                    .addComponent(jRB_c4))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jRadioButton1)
-                                .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jB_Reload, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(5, 5, 5)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTF_patternSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jRB_ions)
-                            .addComponent(jTF_ions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6)
-                            .addComponent(jRB_c1)
-                            .addComponent(jRB_c2)
-                            .addComponent(jRB_c3)
-                            .addComponent(jRB_c4)
-                            .addComponent(jLabel_timeout)
-                            .addComponent(jTF_timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jRB_time)
                             .addComponent(jTF_time, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jRB_mus)
                             .addComponent(jRB_ms))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTF_NScans, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel9))
+                        .addGap(18, 18, 18)
                         .addComponent(jB_BuildAndSend_))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jB_StartStop, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jB_StartStop, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
 
         jRB_ions.getAccessibleContext().setAccessibleDescription("");
         jTF_time.getAccessibleContext().setAccessibleName("");
 
-        jLabel_status.setText("Status : ??");
+        jTabbedPane1.addTab("Irradiation", jPanel2);
 
-        jCheckBox_showFlux.setText("show data flux");
-        jCheckBox_showFlux.setNextFocusableComponent(jTF_Delay_);
-
-        jB_connectToRio.setText("connect to RIO");
-        jB_connectToRio.setNextFocusableComponent(jCheckBox_showFlux);
-        jB_connectToRio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jB_connectToRioActionPerformed(evt);
-            }
-        });
-
-        jCB_basic.setText("Basic mode");
-
-        javax.swing.GroupLayout jPanel_StatusLayout = new javax.swing.GroupLayout(jPanel_Status);
-        jPanel_Status.setLayout(jPanel_StatusLayout);
-        jPanel_StatusLayout.setHorizontalGroup(
-            jPanel_StatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel_StatusLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel_status, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
-                .addComponent(jB_connectToRio)
-                .addGap(26, 26, 26)
-                .addComponent(jCheckBox_showFlux)
-                .addGap(18, 18, 18)
-                .addComponent(jCB_basic)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel_StatusLayout.setVerticalGroup(
-            jPanel_StatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel_StatusLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel_StatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel_status)
-                    .addComponent(jCheckBox_showFlux)
-                    .addComponent(jB_connectToRio)
-                    .addComponent(jCB_basic))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("CRIO parameters"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         jLabel7.setText("Send command : ");
 
@@ -574,18 +566,35 @@ public class IrradiationFrame extends javax.swing.JFrame {
             }
         });
 
+        jCB_basic.setText("Basic mode");
+
+        jCheckBox_showFlux.setText("show data flux");
+
+        jLabel_timeout.setText("Timeout for ion / pt irradiation mode (ms): ");
+
+        jTF_timeout.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTF_timeout.setText("10000");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTF_command, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jB_send)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCheckBox_showFlux)
+                    .addComponent(jCB_basic)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTF_command, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jB_send))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel_timeout)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTF_timeout, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(153, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -595,8 +604,23 @@ public class IrradiationFrame extends javax.swing.JFrame {
                     .addComponent(jTF_command, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7)
                     .addComponent(jB_send))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jCB_basic)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jCheckBox_showFlux)
+                .addGap(26, 26, 26)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel_timeout)
+                    .addComponent(jTF_timeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(80, Short.MAX_VALUE))
         );
+
+        jLabel_timeout.getAccessibleContext().setAccessibleName("Timeout for ion irradiation mode: ");
+
+        jTabbedPane1.addTab("Parameters", jPanel1);
+        jPanel1.getAccessibleContext().setAccessibleDescription("");
+
+        jTabbedPane1.setSelectedIndex(1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -605,29 +629,22 @@ public class IrradiationFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel_Status, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jP_Calibration_, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addComponent(jPanel_Status, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jP_Calibration_, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel_Status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        jP_Calibration_.getAccessibleContext().setAccessibleName("calibration");
-        jP_Calibration_.getAccessibleContext().setAccessibleDescription("");
-        jPanel1.getAccessibleContext().setAccessibleDescription("");
+        jTabbedPane1.getAccessibleContext().setAccessibleName("Irradiation");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -643,10 +660,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private void jTF_ImageTreshold_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTF_ImageTreshold_ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTF_ImageTreshold_ActionPerformed
-
-    private void jTF_Delay_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTF_Delay_ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTF_Delay_ActionPerformed
     /**
      * Acquire a stack for beam calibration
      * @param evt 
@@ -791,6 +804,13 @@ public class IrradiationFrame extends javax.swing.JFrame {
             d = solutionY.getEntry(1);
             e = solution.getEntry(2);
             f = solutionY.getEntry(2);
+            //Writing results in prefs file.
+            Prefs.set(".crio.calib.a",a);
+            Prefs.set(".crio.calib.b",b);
+            Prefs.set(".crio.calib.c",c);
+            Prefs.set(".crio.calib.d",d);
+            Prefs.set(".crio.calib.e",e);
+            Prefs.set(".crio.calib.f",f);
             
         } catch(NumberFormatException error){
             logMessage(" Error: " + error.toString());
@@ -810,10 +830,14 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private void jB_BuildAndSend_ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         int value, mode;
         List<Point>  pointList = new ArrayList<Point>();
+        List<Point> digitalPointList = new ArrayList<Point>();
+        
         pointList.clear();
+        digitalPointList.clear();
         
         //Setting scan speed to 0 in order to activate the mode dose/point
         crio.setScanSpeed(9);
+        crio.setnumberOfScan(Integer.valueOf(jTF_NScans.getText()));
         
         //If ion per point irradiation mode is selected
         if (jRB_ions.isSelected()){
@@ -846,8 +870,9 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 double x = rt.getValue("X", i); //affiche la valeur de x
                 double y = rt.getValue("Y",i); // affiche la valeur de y
                 logMessage("#X: " + String.valueOf(x) + " #Y: " + String.valueOf(y));
-                Point p = new Point((int)(a*x+b*y+e), (int)(c*x+d*y+f));
-                pointList.add(p);
+                //Point p = new Point((int)(a*x+b*y+e), (int)(c*x+d*y+f));
+                pointList.add(crio.MicroscopeToBeam(x, y));
+                digitalPointList.add(crio.makeDigital(x,y));
             }
             
         }
@@ -861,17 +886,20 @@ public class IrradiationFrame extends javax.swing.JFrame {
             for (ij.gui.Roi r:ra){
                 double centroid[]=r.getContourCentroid();
                 logMessage("Roi centroid: " + Double.toString(centroid[0]) + " / " + Double.toString(centroid[1]));
-                Point p = new Point((int)(a*centroid[0]+b*centroid[1]+e), (int)(c*centroid[0]+d*centroid[1]+f));
-                pointList.add(p);   
+                Point p=crio.MicroscopeToBeam(centroid[0], centroid[1]);
+                //Point p = new Point((int)(a*centroid[0]+b*centroid[1]+e), (int)(c*centroid[0]+d*centroid[1]+f));
+                pointList.add(p);
+                digitalPointList.add(crio.makeDigital(centroid[0],centroid[1]));
             }
             
             
         }
-        logMessage("mode: " + Integer.toString(mode));
-        logMessage("value: " + Integer.toString(value));
-        if (!jCB_basic.isSelected()) crio.sendPositionList(pointList, mode, (short)value);
+        if (!jCB_basic.isSelected()) crio.sendPositionList(pointList, digitalPointList,mode, (short)value);
         //Reduced mode, simple point list
-        if (jCB_basic.isSelected()) crio.sendPositionList(pointList);
+        if (jCB_basic.isSelected()) {
+            crio.setScanSpeed(100);
+            crio.sendPositionList(pointList, digitalPointList);
+        }
         logMessage("End-----");
     }                                        
             
@@ -1060,11 +1088,11 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabel_status;
     private javax.swing.JLabel jLabel_timeout;
     private javax.swing.JPanel jP_Calibration_;
@@ -1083,14 +1111,15 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRB_time;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JTextField jTF_BeamEnergy_;
-    private javax.swing.JTextField jTF_Delay_;
     private javax.swing.JTextField jTF_ImageSize_;
     private javax.swing.JTextField jTF_ImageTreshold_;
+    private javax.swing.JTextField jTF_NScans;
     private javax.swing.JTextField jTF_command;
     private javax.swing.JTextField jTF_ions;
     private javax.swing.JTextField jTF_minsize;
     private javax.swing.JTextField jTF_patternSize;
     private javax.swing.JTextField jTF_time;
     private javax.swing.JTextField jTF_timeout;
+    private javax.swing.JTabbedPane jTabbedPane1;
     // End of variables declaration//GEN-END:variables
 }
