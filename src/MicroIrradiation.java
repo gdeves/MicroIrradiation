@@ -9,7 +9,7 @@ import org.micromanager.api.ScriptInterface;
 
 
 public class MicroIrradiation implements MMPlugin {
-   public static String menuName = "MicroIrradiation";
+   public static String menuName = "Micro Irradiation";
    public static String tooltipDescription = "This Micro-Manager plugin is used to perform microbeam irradiation. ";
    private CMMCore core_;
    private ScriptInterface gui_;
@@ -23,8 +23,8 @@ public class MicroIrradiation implements MMPlugin {
         try {
             //myFrame_ = new SetupFrame(gui_);
             myFrame_ = new IrradiationFrame(gui_);
-      } catch (IOException ex) {
-          Logger.getLogger(MicroIrradiation.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+        Logger.getLogger(MicroIrradiation.class.getName()).log(Level.SEVERE, null, ex);
       }
       
       myFrame_.setVisible(true);

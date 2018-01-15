@@ -53,9 +53,9 @@ import ij.Prefs;
 	try {	
             //Stored values
             
-                Prefs.set("crio.inputPort", (int)(6300));
+            Prefs.set("crio.inputPort", (int)(6300));
                
-                IJ.log("test prefs " + String.valueOf(Prefs.getInt("crio.inputPort",0)) + "fin");
+            IJ.log("test prefs " + String.valueOf(Prefs.getInt("crio.inputPort",0)) + "fin");
             
             
             // Server connexion
@@ -140,27 +140,124 @@ import ij.Prefs;
         this.IP=IP;
     }
      
-        /**
-         * Setting the scanning speed (ms/pt)
-         * @param speed 
-         */
-        public void setScanSpeed(int speed) {
-            try {
-                String message=formatMessage(speed,"SET SCAN SPEED = ");
-                sendMessage(message);
-            } catch (Exception e) {      
-            }
+    /**
+    * Setting the scanning speed (ms/pt)
+    * @param speed 
+    */
+    public void setScanSpeed(int speed) {
+        try {
+            String message=formatMessage(speed,"SET SCAN SPEED = ");
+            sendMessage(message);
+        } catch (Exception e) {      
         }
-        /**
-         * Format the message to be sent to compact rio
-         * @param value
-         * @param instruction
-         * @return the string message to be sent
-         */
-        private String formatMessage(int value, String instruction){
-           String message = "0000"+ String.valueOf((instruction+String.valueOf(value)).length()) + instruction+String.valueOf(value);
-           return message;
+    }
+    /**
+    * Setting the number of scan
+    * @param scan 
+    */
+    public void setnumberOfScan(int scan) {
+        try {
+            String message=formatMessage(scan,"SET NbrSCAN = ");
+            sendMessage(message);
+        } catch (Exception e) {      
         }
+    }
+    /**
+    * Keeping the beam always open even after scan
+    **/
+    public void setBeamOpenAfterScan() {
+        try {
+            sendMessage("000015SET No DeadTime");
+        } catch (Exception e) {      
+        }
+    }
+    /**
+    * Closing the beam after each scan
+    **/
+    public void setBeamClosedAfterScan() {
+        try {
+            sendMessage("000016SET DeadTime = 0");
+        } catch (Exception e) {      
+        }
+    }
+    /**
+    * Closing the beam after each point during a certain period
+    * @param period
+    **/
+    public void setDeadTime(int period) {
+        try {
+            String message=formatMessage(period,"SET DeadTime = ");
+            sendMessage(message);
+        } catch (Exception e) {      
+        }
+    }
+    /**
+    * Setting the counter to be used for the counting of ions
+    * @param counter
+    **/
+    public void setCounter(int counter) {
+        try {
+            String message=formatMessage(counter,"SET EXTTRIG COUNTER = ");
+            sendMessage(message);
+        } catch (Exception e) {      
+        }
+    }
+    
+    /**
+    * Setting the timeout used during irradiation with a defined number of ions per point
+    * When timeout is reached CR switches to next point and send "000008TimedOut" message
+    * @param timeout
+    **/
+    public void setTimeOut(int timeout) {
+        try {
+            String message=formatMessage(timeout,"SET Timeout = ");
+            sendMessage(message);
+        } catch (Exception e) {      
+        }
+    }
+    
+    /**
+    * Setting the counter to be used to make an image
+    * @param counter
+    **/
+    public void setMapCounter(int counter) {
+        try {
+            String message=formatMessage(counter,"SET IMA COUNTER = ");
+            sendMessage(message);
+        } catch (Exception e) {      
+        }
+    }
+    
+    /**
+    * Setting the counter to be used to make an image
+    * @param counter
+    **/
+    public void setSpeedUnit(String unit) {
+        try {
+            if (unit=="ms") sendMessage("000020SET VarSpeedUnit(ms)");
+            else sendMessage("000020SET VarSpeedUnit(µs)");
+        } catch (Exception e) {      
+        }
+    }
+    /**
+    * Format the message to be sent to compact rio
+    * @param value
+    * @param instruction
+    * @return the string message to be sent
+    */
+    private String formatMessage(int value, String instruction){
+       String message = "0000"+ String.valueOf((instruction+String.valueOf(value)).length()) + instruction+String.valueOf(value);
+       return message;
+    }
+    /**
+    * Format the message to be sent to compact rio
+    * @param instruction
+    * @return the string message to be sent
+    */
+    public String formatMessage(String instruction){
+       String message = "0000"+ String.valueOf((instruction).length()) + instruction;
+       return message;
+    }
     //------------------------------------------------
     //Getters
     //------------------------------------------------
@@ -304,8 +401,10 @@ import ij.Prefs;
                 byte dx = 0;
                 byte dy = 0;
                 short p;
+                //Si c'est le dernier point de la liste, bit 15=1
                 if (index==positionsList.size()-1)
                     p = -32768;
+                //si bit 14 =0 alors mode temps par point
                 else 
                     p = 0;
                 positionsBuffer.put(dx).put(dy).putShort(p);
@@ -318,6 +417,78 @@ import ij.Prefs;
             sendMessage(positionsBuffer.array(),positionsBuffer.capacity());
   }
   
+    /**
+    * Send a list of beam position to the compact RIO
+    * @param positionsList, liste des positions à envoyer
+    */
+    public void sendPositionList(List<Point> positionsList, int TimeMode, short value) {
+        
+        
+        // Création d'un bytebuffer de 8 octets que l'on remplit avec x, y , dx
+        ByteBuffer positionsBuffer = ByteBuffer.allocate(8*positionsList.size());
+        logMessage("N points : " + positionsList.size());
+        try {
+            if (positionsList.size()>1 & TimeMode == 1) sendMessage("000011SET NO WAIT");
+            if (TimeMode==0) sendMessage("000011SET NO WAIT");
+            if (TimeMode == 1 & positionsList.size()==1) sendMessage("000008SET WAIT");
+        } catch (Exception e) {
+        }
+        
+        //Envoi de toutes les valeurs analogiques des points
+        for(int index=0; index < positionsList.size(); index++){
+        short x = (short) positionsList.get(index).x;
+        short y = (short) positionsList.get(index).y;
+        positionsBuffer.putShort(x).putShort(y);
+        }
+        switch (TimeMode){
+            //Ion per point mode
+            case 0:
+                //Envoi de toutes les valeurs digitales des points
+                for(int index=0; index < positionsList.size(); index++) {
+                    byte dx = 0;
+                    byte dy = 0;
+                    short p;
+                    //Si c'est le dernier point de la liste, bit 15=1 et bit14=1
+                    //-1 = 0x1111 1111 1111 1111
+                    if (index==positionsList.size()-1)
+                        p = (short)(value&-1);
+                    //si bit15=0 et bit 14 =1 alors mode temps par point
+                    //32767 = 0x0111 1111 1111 1111
+                    else 
+                        p = (short)(value & 0x32767);
+                    logMessage("Ions par point: " + Integer.toString(p));
+                    positionsBuffer.put(dx).put(dy).putShort(p);
+                }
+                break;
+            //Time per point mode    
+            case 1:
+                //Envoi de toutes les valeurs digitales des points
+                for(int index=0; index < positionsList.size(); index++) {
+                    byte dx = 0;
+                    byte dy = 0;
+                    short p;
+                    //Si c'est le dernier point de la liste, bit 15=1 et bit14=0
+                    //-16385 = 0x1011 1111 1111 1111
+                    if (index==positionsList.size()-1)
+                        p = (short)(value&-16385);
+                    //si bit15=0 et bit 14 =0 alors mode temps par point
+                    //16383 = 0x0011 1111 1111 1111
+                    else 
+                        p = (short)(value & 0x16383);
+                    logMessage("Time per point" + Integer.toString(p));
+                    positionsBuffer.put(dx).put(dy).putShort(p);
+                }
+                
+            
+                
+        }       
+            String message=formatMessage(positionsList.size()*8,"SCAN DATA = ");
+            logMessage(message);
+            
+            sendMessage(message.getBytes(),message.length());
+            sendMessage(positionsBuffer.array(),positionsBuffer.capacity());
+  }
+    
         /**
          * Send a single beam position to the compact RIO
          * @param pt 
