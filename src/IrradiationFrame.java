@@ -534,7 +534,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
             }
         });
 
-        jCB_basic.setSelected(true);
         jCB_basic.setText("Basic mode");
 
         javax.swing.GroupLayout jPanel_StatusLayout = new javax.swing.GroupLayout(jPanel_Status);
@@ -628,7 +627,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         jP_Calibration_.getAccessibleContext().setAccessibleName("calibration");
         jP_Calibration_.getAccessibleContext().setAccessibleDescription("");
-        jPanel1.getAccessibleContext().setAccessibleName("CRIO parameters");
         jPanel1.getAccessibleContext().setAccessibleDescription("");
 
         pack();

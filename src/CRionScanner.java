@@ -449,13 +449,13 @@ import ij.Prefs;
                     byte dy = 0;
                     short p;
                     //Si c'est le dernier point de la liste, bit 15=1 et bit14=1
-                    //-1 = 0x1111 1111 1111 1111
+                    //-16384 = 0x1100 0000 0000 0000
                     if (index==positionsList.size()-1)
-                        p = (short)(value&-1);
+                        p = (short)(value | -16384);
                     //si bit15=0 et bit 14 =1 alors mode temps par point
-                    //32767 = 0x0111 1111 1111 1111
+                    //16384 = 0x0100 0000 0000 0000
                     else 
-                        p = (short)(value & 0x32767);
+                        p = (short)(value | 16384);
                     logMessage("Ions par point: " + Integer.toString(p));
                     positionsBuffer.put(dx).put(dy).putShort(p);
                 }
@@ -468,13 +468,13 @@ import ij.Prefs;
                     byte dy = 0;
                     short p;
                     //Si c'est le dernier point de la liste, bit 15=1 et bit14=0
-                    //-16385 = 0x1011 1111 1111 1111
+                    //-32768 = 0x1000 0000 0000 0000
                     if (index==positionsList.size()-1)
-                        p = (short)(value&-16385);
+                        p = (short)(value | -32768);
                     //si bit15=0 et bit 14 =0 alors mode temps par point
                     //16383 = 0x0011 1111 1111 1111
                     else 
-                        p = (short)(value & 0x16383);
+                        p = (short)(value & 16383);
                     logMessage("Time per point" + Integer.toString(p));
                     positionsBuffer.put(dx).put(dy).putShort(p);
                 }
