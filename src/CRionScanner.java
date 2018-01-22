@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 
 import ij.IJ;
 import java.io.BufferedInputStream;
@@ -55,10 +49,10 @@ import ij.Prefs;
             outputPort= Prefs.getInt(".crio.outputPort",6400);
             IP=Prefs.getString(".crio.IP", "10.13.0.29");
             beamCoefficient=Prefs.getInt(".crio.beamCoefficient", 29);
-            a=Prefs.getDouble(".crio.calib.a", 40);
-            b=Prefs.getDouble(".crio.calib.b", -40);
-            c=Prefs.getDouble(".crio.calib.c", 1);
-            d=Prefs.getDouble(".crio.calib.d", 1);
+            a=Prefs.getDouble(".crio.calib.a",0);
+            b=Prefs.getDouble(".crio.calib.b",0);
+            c=Prefs.getDouble(".crio.calib.c", 0);
+            d=Prefs.getDouble(".crio.calib.d", 0);
             e=Prefs.getDouble(".crio.calib.e", 0);
             f=Prefs.getDouble(".crio.calib.f", 0);
             
@@ -69,6 +63,7 @@ import ij.Prefs;
             logMessage(" Connexion: " + IP);
             logMessage(" Input Port : " + Integer.toString(inputPort));
             logMessage(" Output Port : " + Integer.toString(outputPort));
+            logMessage("Beam calibration: ("+ String.valueOf(a) + ","+ String.valueOf(b) + ","+ String.valueOf(c) + ","+ String.valueOf(d) + ","+ String.valueOf(e) + ","+ String.valueOf(f) + ")");
             
             out = new DataOutputStream(socketIn.getOutputStream());
             
@@ -207,6 +202,17 @@ import ij.Prefs;
        Point p= new Point((int)(a*x+b*y+e), (int)(c*x+d*y+f));
        return p;
     }
+    public ArrayList<Point> MicroscopeToBeam(ArrayList<Point> pointList){
+        for (int index=0;index<pointList.size();index++){
+            Point p=MicroscopeToBeam(pointList.get(index).getX(),pointList.get(index).getY());
+            pointList.set(index,p);
+        }
+        return pointList;
+    }
+    public int MicroscopeToBeam (int size){
+       int p= (int)(a*size+e);
+       return p;
+    }
     /**
      * Get the correxponding x position in image reference from a beam position
      * @param p, a beam position
@@ -316,11 +322,11 @@ import ij.Prefs;
     
     /**
     * Setting the counter to be used to make an image
-    * @param counter
+    * @param unit, ms or µs
     **/
     public void setSpeedUnit(String unit) {
         try {
-            if (unit=="ms") sendMessage("000020SET VarSpeedUnit(ms)");
+            if ("ms".equals(unit)) sendMessage("000020SET VarSpeedUnit(ms)");
             else sendMessage("000020SET VarSpeedUnit(µs)");
         } catch (Exception e) {      
         }
@@ -375,7 +381,8 @@ import ij.Prefs;
         }
         /**
          * Converts a beam position into digital value for display
-         * @param position
+         * @param x
+         * @param y
          * @return 
          */
         public Point makeDigital(double x, double y){
@@ -482,6 +489,7 @@ import ij.Prefs;
     /**
     * Send a list of beam position to the compact RIO
     * @param positionsList, liste des positions à envoyer
+     * @param digitalList, digital coordinates for display of pattern on web interface
     */
     public void sendPositionList(List<Point> positionsList, List<Point> digitalList) {
             // Création d'un bytebuffer de 8 octets que l'on remplit avec x, y , dx
@@ -519,10 +527,13 @@ import ij.Prefs;
   }
   
     /**
-    * Send a list of beam position to the compact RIO
+    * Send a list of beam position to the compact RIO, same dose for each point defined by value
     * @param positionsList, liste des positions à envoyer
+     * @param digitalList, list of digital coordinates to display pattern on web interface
+     * @param TimeMode, timemode between ion per point mode (timemode=0) or time per point (timemode=1)
+     * @param dose, ion or time per point. Identical for each irradiated point
     */
-    public void sendPositionList(List<Point> positionsList, List<Point> digitalList,int TimeMode, short value) {
+    public void sendPositionList(List<Point> positionsList, List<Point> digitalList,int TimeMode, short dose) {
         
         
         // Création d'un bytebuffer de 8 octets que l'on remplit avec x, y , dx
@@ -549,15 +560,16 @@ import ij.Prefs;
                     byte dx = (byte) digitalList.get(index).x;
                     byte dy = (byte) digitalList.get(index).y;
                     short p;
+                    //si bit15=0 et bit 14 =1 alors mode temps par point
+                    //16384 = 0x0100 0000 0000 0000
                     //Si c'est le dernier point de la liste, bit 15=1 et bit14=1
                     //-16384 = 0x1100 0000 0000 0000
                     if (index==positionsList.size()-1)
-                        p = (short)(value | -16384);
-                    //si bit15=0 et bit 14 =1 alors mode temps par point
-                    //16384 = 0x0100 0000 0000 0000
+                        p = (short)(dose | -16384);
+                    
                     else 
-                        p = (short)(value | 16384);
-                    logMessage("Ions par point: " + Integer.toString(p));
+                        p = (short)(dose | 16384);
+                    //logMessage("Ions par point: " + Integer.toString(p));
                     positionsBuffer.put(dx).put(dy).putShort(p);
                 }
                 break;
@@ -571,12 +583,12 @@ import ij.Prefs;
                     //Si c'est le dernier point de la liste, bit 15=1 et bit14=0
                     //-32768 = 0x1000 0000 0000 0000
                     if (index==positionsList.size()-1)
-                        p = (short)(value | -32768);
+                        p = (short)(dose | -32768);
                     //si bit15=0 et bit 14 =0 alors mode temps par point
                     //16383 = 0x0011 1111 1111 1111
                     else 
-                        p = (short)(value & 16383);
-                    logMessage("Time per point" + Integer.toString(p));
+                        p = (short)(dose & 16383);
+                    //logMessage("Time per point" + Integer.toString(p));
                     positionsBuffer.put(dx).put(dy).putShort(p);
                 }
                 

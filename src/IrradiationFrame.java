@@ -110,6 +110,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jPanel_Status = new javax.swing.JPanel();
         jLabel_status = new javax.swing.JLabel();
         jB_connectToRio = new javax.swing.JButton();
+        jCB_basic = new javax.swing.JCheckBox();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jP_Calibration_ = new javax.swing.JPanel();
         jLab_Beam_Energy_ = new javax.swing.JLabel();
@@ -150,7 +151,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jTF_command = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jB_send = new javax.swing.JButton();
-        jCB_basic = new javax.swing.JCheckBox();
         jCheckBox_showFlux = new javax.swing.JCheckBox();
         jLabel_timeout = new javax.swing.JLabel();
         jTF_timeout = new javax.swing.JTextField();
@@ -174,6 +174,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
             }
         });
 
+        jCB_basic.setText("Basic mode");
+
         javax.swing.GroupLayout jPanel_StatusLayout = new javax.swing.GroupLayout(jPanel_Status);
         jPanel_Status.setLayout(jPanel_StatusLayout);
         jPanel_StatusLayout.setHorizontalGroup(
@@ -183,6 +185,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 .addComponent(jLabel_status, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30)
                 .addComponent(jB_connectToRio)
+                .addGap(18, 18, 18)
+                .addComponent(jCB_basic)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel_StatusLayout.setVerticalGroup(
@@ -191,7 +195,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel_StatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel_status)
-                    .addComponent(jB_connectToRio))
+                    .addComponent(jB_connectToRio)
+                    .addComponent(jCB_basic))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -274,11 +279,8 @@ public class IrradiationFrame extends javax.swing.JFrame {
                             .addComponent(jLab_Beam_Energy_))
                         .addGap(22, 22, 22)
                         .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jP_Calibration_Layout.createSequentialGroup()
-                                .addGroup(jP_Calibration_Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTF_BeamEnergy_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTF_ImageSize_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(100, 100, 100))
+                            .addComponent(jTF_BeamEnergy_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTF_ImageSize_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jP_Calibration_Layout.createSequentialGroup()
                                 .addComponent(jTF_ImageTreshold_, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -380,6 +382,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
         jLabel5.setText("Pattern step size (µm) :");
 
+        jTF_patternSize.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTF_patternSize.setText("5");
         jTF_patternSize.setNextFocusableComponent(jB_BuildAndSend_);
         jTF_patternSize.addActionListener(new java.awt.event.ActionListener() {
@@ -518,7 +521,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
                         .addComponent(jRadioButton1)
                         .addComponent(jCB_patterns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jB_Reload, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTF_patternSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -538,7 +541,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
                             .addComponent(jTF_time, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jRB_mus)
                             .addComponent(jRB_ms))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTF_NScans, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel9))
@@ -566,8 +569,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
             }
         });
 
-        jCB_basic.setText("Basic mode");
-
         jCheckBox_showFlux.setText("show data flux");
 
         jLabel_timeout.setText("Timeout for ion / pt irradiation mode (ms): ");
@@ -583,7 +584,6 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jCheckBox_showFlux)
-                    .addComponent(jCB_basic)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -604,9 +604,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
                     .addComponent(jTF_command, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7)
                     .addComponent(jB_send))
-                .addGap(18, 18, 18)
-                .addComponent(jCB_basic)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(44, 44, 44)
                 .addComponent(jCheckBox_showFlux)
                 .addGap(26, 26, 26)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -805,12 +803,20 @@ public class IrradiationFrame extends javax.swing.JFrame {
             e = solution.getEntry(2);
             f = solutionY.getEntry(2);
             //Writing results in prefs file.
-            Prefs.set(".crio.calib.a",a);
-            Prefs.set(".crio.calib.b",b);
-            Prefs.set(".crio.calib.c",c);
-            Prefs.set(".crio.calib.d",d);
-            Prefs.set(".crio.calib.e",e);
-            Prefs.set(".crio.calib.f",f);
+            try{
+            Prefs.set("crio.calib.a",a);
+            
+            Prefs.set("crio.calib.b",b);
+            Prefs.set("crio.calib.c",c);
+            Prefs.set("crio.calib.d",d);
+            Prefs.set("crio.calib.e",e);
+            Prefs.set("crio.calib.f",f);
+            Prefs.savePreferences();
+            logMessage("saving prefs");
+            } catch (Exception e){
+                logMessage(e.toString());
+            }
+            crio.set_calib(a, b, c, d, e, f);
             
         } catch(NumberFormatException error){
             logMessage(" Error: " + error.toString());
@@ -829,8 +835,13 @@ public class IrradiationFrame extends javax.swing.JFrame {
 
     private void jB_BuildAndSend_ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         int value, mode;
-        List<Point>  pointList = new ArrayList<Point>();
-        List<Point> digitalPointList = new ArrayList<Point>();
+        ArrayList<Point>  pointList = new ArrayList<Point>();
+        ArrayList<Point> digitalPointList = new ArrayList<Point>();
+        
+        String path=IJ.getDirectory("imagej")+"mmplugins\\MicroIrradiation\\Patterns\\"+jCB_patterns.getSelectedItem();
+        int size = Integer.valueOf(jTF_patternSize.getText());
+        //size=crio.MicroscopeToBeam(size);
+        Pattern pattern=new Pattern(path,size);
         
         pointList.clear();
         digitalPointList.clear();
@@ -871,8 +882,18 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 double y = rt.getValue("Y",i); // affiche la valeur de y
                 logMessage("#X: " + String.valueOf(x) + " #Y: " + String.valueOf(y));
                 //Point p = new Point((int)(a*x+b*y+e), (int)(c*x+d*y+f));
-                pointList.add(crio.MicroscopeToBeam(x, y));
-                digitalPointList.add(crio.makeDigital(x,y));
+                Point p = new Point((int)x,(int)y);
+                pointList.add(p);
+                //pointList.add(crio.MicroscopeToBeam(x, y));
+               
+                
+            }
+            
+            pointList=pattern.applyPattern(pointList);
+            pointList=crio.MicroscopeToBeam(pointList);
+            
+            for (int index=0;index<pointList.size();index++){
+                digitalPointList.add(crio.makeDigital(pointList.get(index).getX(),pointList.get(index).getY()));
             }
             
         }
@@ -889,12 +910,17 @@ public class IrradiationFrame extends javax.swing.JFrame {
                 Point p=crio.MicroscopeToBeam(centroid[0], centroid[1]);
                 //Point p = new Point((int)(a*centroid[0]+b*centroid[1]+e), (int)(c*centroid[0]+d*centroid[1]+f));
                 pointList.add(p);
-                digitalPointList.add(crio.makeDigital(centroid[0],centroid[1]));
+                //digitalPointList.add(crio.makeDigital(centroid[0],centroid[1]));
             }
             
+            pointList=pattern.applyPattern(pointList);
+            for (int index=0;index<pointList.size();index++){
+                digitalPointList.add(crio.makeDigital(pointList.get(index).getX(),pointList.get(index).getY()));
+            }
             
         }
         if (!jCB_basic.isSelected()) crio.sendPositionList(pointList, digitalPointList,mode, (short)value);
+        
         //Reduced mode, simple point list
         if (jCB_basic.isSelected()) {
             crio.setScanSpeed(100);
@@ -1028,7 +1054,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
      * @return a list of pattern names
      */
     private ArrayList<String> patternList(String path) {
-    ArrayList<String> patterns=new ArrayList();
+    ArrayList<String> patterns=new ArrayList<String>();
     File myDir=new File(path);
     File[] myList=myDir.listFiles();
 
