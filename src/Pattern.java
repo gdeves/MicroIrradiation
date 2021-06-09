@@ -8,6 +8,8 @@ import java.util.Date;
 import java.awt.Point;
 
 
+;
+
 /**
  *
  * @author deves
@@ -16,17 +18,29 @@ public class Pattern {
     ArrayList<Point> pattern = new ArrayList<Point>();
     ArrayList<Short> dosePattern = new ArrayList<Short>();
     String path;
-    
+        
     
    
    //Constructors 
+
+    /**
+     *
+     * @param path
+     */
    public Pattern (String path){
        this.path=path;
        initialize(path);
    }
-   public Pattern (String path, int size){
+
+    /**
+     *
+     * @param path
+     * @param sizeX
+     * @param sizeY
+     */
+    public Pattern (String path, int sizeX, int sizeY){
        this.path=path;
-       initialize(path, size);
+       initialize(path, sizeX, sizeY);
    }
    
    /**
@@ -37,8 +51,8 @@ public class Pattern {
        readFile(path);
        
    }
-   private void initialize(String path, int size){
-       readFile(path, size);
+   private void initialize(String path, int sizeX, int sizeY){
+       readFile(path, sizeX, sizeY);
        
    }
    /**
@@ -47,7 +61,7 @@ public class Pattern {
     */
    public void readFile (String path){
        try{
-           int column=0;
+           int column;
            int ligne=0;
            Scanner scanner = new Scanner(new File(path));
            
@@ -71,11 +85,12 @@ public class Pattern {
    /**
     * Read a pattern file and build a centered pattern, then scale it according to size
     * @param path, path to the pattern file
-    * @param distance, distance between points
+    * @param distanceX, X distance between points
+     * @param distanceY, Y distance between points
     */
-   public void readFile (String path, int distance){
+   public void readFile (String path, int distanceX,int distanceY){
        try{
-           int column=0;
+           int column;
            int ligne=0;
            Scanner scanner = new Scanner(new File(path));
            
@@ -91,14 +106,18 @@ public class Pattern {
                }
            }
            centerPattern();
-           scalePattern(distance);
+           scalePattern(distanceX,distanceY);
                                
        } catch (Exception e){
            logMessage(e.toString());
          }    
    }
    
-   public ArrayList<Short> getDosePattern(){
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Short> getDosePattern(){
        return dosePattern;
    }
    /**
@@ -110,7 +129,20 @@ public class Pattern {
        ArrayList<Point> pointList = new ArrayList<Point>();
        for (int index=0;index<pattern.size();index++){
            pointList.add(index, new Point((int)(pattern.get(index).getX()+p.getX()),(int)(pattern.get(index).getY()+p.getY())));
+           
        }
+       return pointList;
+   }
+
+    /**
+     *
+     * @param sizeX
+     * @param sizeY
+     * @param PointList
+     * @return
+     */
+    public ArrayList<Point> applyGrid(int sizeX, int sizeY, ArrayList<Point> PointList){
+       ArrayList<Point> pointList = new ArrayList<Point>();
        return pointList;
    }
    /**
@@ -125,21 +157,59 @@ public class Pattern {
                 if (dosePattern.get(index)>0) p.add( new Point((int)(pattern.get(index).getX()+pointList.get(pointIndex).getX()),(int)(pattern.get(index).getY()+pointList.get(pointIndex).getY())));
             }
        }
-       print(p);
        return p;
    }
-   public ArrayList<Point> getPattern(){
+   
+   /**
+    * Build a dose list for the corresponding point list
+    * @param pointList
+    * @return 
+    */
+   public ArrayList<Integer> applyDosePattern (ArrayList<Point> pointList){
+       ArrayList<Integer> doseList = new ArrayList<Integer>();
+       for (int pointIndex=0;pointIndex<pointList.size();pointIndex++){
+            for (int index=0;index<pattern.size();index++){
+                if (dosePattern.get(index)>0) doseList.add((int) dosePattern.get(index));
+            }
+       }
+       //print();
+       return doseList;
+   }
+
+    /**
+     *
+     * @param pointList
+     * @param doseFactor
+     * @return
+     */
+    public ArrayList<Integer> applyDosePattern (ArrayList<Point> pointList, int doseFactor){
+       ArrayList<Integer> doseList = new ArrayList<Integer>();
+       for (int pointIndex=0;pointIndex<pointList.size();pointIndex++){
+            for (int index=0;index<pattern.size();index++){
+                if (dosePattern.get(index)>0) doseList.add((int) dosePattern.get(index)*doseFactor);
+            }
+       }
+       //print();
+       return doseList;
+   }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Point> getPattern(){
        return pattern;
    }
    /**
     * Scale the pattern
-    * @param size 
+    * @param sizeX 
+     * @param sizeY 
     */
-   public void scalePattern(int size){
+   public void scalePattern(int sizeX, int sizeY){
        for (int index=0;index<pattern.size();index++){
-           pattern.set(index, new Point((int)pattern.get(index).getX()*size,(int)pattern.get(index).getY()*size));
+           pattern.set(index, new Point((int)pattern.get(index).getX()*sizeX,(int)pattern.get(index).getY()*sizeY));
        }
-       print();
+       //print();
    }
    /**
     * Center the pattern
@@ -153,7 +223,7 @@ public class Pattern {
        }
        
        ShiftXY((int)Math.round(-shiftX),(int)Math.round(-shiftY));
-       print();
+       //print();
    }
    /**
     * Shift the pattern along the x axis
@@ -187,11 +257,16 @@ public class Pattern {
     * Print the pattern 
     */
    public void print(){
-       for (int index=0;index<pattern.size();index++){
-           logMessage("Point " + String.valueOf(index) + ": " + String.valueOf(pattern.get(index)));
+       for (int index=0;index<dosePattern.size();index++){
+           logMessage("Point " + String.valueOf(index) + ": " + String.valueOf(dosePattern.get(index)));
        } 
    }
-   public void print(ArrayList<Point> list){
+
+    /**
+     *
+     * @param list
+     */
+    public void print(ArrayList<Point> list){
        for (int index=0;index<list.size();index++){
            logMessage("Point " + String.valueOf(index) + ": " + String.valueOf(list.get(index)));
        } 

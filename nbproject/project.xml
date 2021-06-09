@@ -4,8 +4,8 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>MicroIrradiation</name>
-            <explicit-platform explicit-source-supported="true"/>
             <source-roots>
+                <root id="src.Micro-Manager.dir"/>
                 <root id="src.dir"/>
             </source-roots>
             <test-roots>

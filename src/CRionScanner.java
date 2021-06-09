@@ -31,7 +31,6 @@ import ij.Prefs;
     private int outputPort;
     private String IP;
     private int beamCoefficient;
-    public Prefs prefs;
     private double a,b,c,d,e,f;
     
     
@@ -48,7 +47,7 @@ import ij.Prefs;
             inputPort= Prefs.getInt(".crio.inputPort",6300);
             outputPort= Prefs.getInt(".crio.outputPort",6400);
             IP=Prefs.getString(".crio.IP", "10.13.0.29");
-            beamCoefficient=Prefs.getInt(".crio.beamCoefficient", 29);
+            beamCoefficient=Prefs.getInt(".crio.beamCoefficient", 7);
             a=Prefs.getDouble(".crio.calib.a",0);
             b=Prefs.getDouble(".crio.calib.b",0);
             c=Prefs.getDouble(".crio.calib.c", 0);
@@ -57,8 +56,12 @@ import ij.Prefs;
             f=Prefs.getDouble(".crio.calib.f", 0);
             
             // Server connexion
-            socketIn = new Socket(IP, inputPort); 
-            socketOut = new Socket(IP, outputPort);
+            try {socketIn = new Socket(IP, inputPort); 
+                socketOut = new Socket(IP, outputPort);
+            }
+            catch (Exception e){
+                logMessage("No Server found");
+            }
             logMessage(" Starting Micro-irradiation Plugin");
             logMessage(" Connexion: " + IP);
             logMessage(" Input Port : " + Integer.toString(inputPort));
@@ -69,6 +72,7 @@ import ij.Prefs;
             
 	} catch (IOException e) {
             logMessage(" Error : " + e.toString());
+            logMessage(" No connection found to CRIO");
             return false;
         } 
         return true;
@@ -87,6 +91,7 @@ import ij.Prefs;
             
 	} catch (IOException e) {
             logMessage(" Error : " + e.toString());
+            logMessage(" No connection found to CRIO");
             return false;
         } 
         return true;
@@ -180,9 +185,14 @@ import ij.Prefs;
     public void set_calib_f(double f){
         this.f=f;
     }
-        /**
+    /**
      * CRIO calibration
-     * @param a 
+     * @param a
+     * @param b
+     * @param c
+     * @param d
+     * @param e
+     * @param f
      */
     public void set_calib(double a,double b,double c,double d,double e,double f){
         this.a=a;
@@ -191,6 +201,10 @@ import ij.Prefs;
         this.d=d;
         this.e=e;
         this.f=f;
+    }
+    public Point GetBeamOrigin(){
+        Point p = new Point(0,0);
+        return p;
     }
     /**
      * Transform (x,y) image coordinate to beam position
@@ -209,6 +223,13 @@ import ij.Prefs;
         }
         return pointList;
     }
+    public ArrayList<Point> MicroscopeToBeam(ArrayList<Point> pointList, int offsetX, int offsetY){
+        for (int index=0;index<pointList.size();index++){
+            Point p=MicroscopeToBeam(pointList.get(index).getX()+offsetX,pointList.get(index).getY()+offsetY);
+            pointList.set(index,p);
+        }
+        return pointList;
+    }
     public int MicroscopeToBeam (int size){
        int p= (int)(a*size+e);
        return p;
@@ -222,14 +243,27 @@ import ij.Prefs;
         double x=(int)((p.getX()-b*p.getY()-c)/a);
         return x;
     }
-        /**
+     /**
      * Get the correxponding Y position in image reference from a beam position
      * @param p, a beam position
      * @return 
      */
     public double BeamToMicroscopeY (Point p){
+        double y=(int)((p.getX()-e*p.getY()-f)/d);
+        return y;
+    }
+    /**
+     * 
+     * @param p
+     * @return 
+     */
+    
+    
+    public Point BeamToMicroscope (Point p){
         double x=(int)((p.getX()-e*p.getY()-f)/d);
-        return x;
+        double y=(int)((p.getX()-e*p.getY()-f)/d);
+        Point o= new Point((int)x,(int)y);
+        return o;
     }
     
     /**
@@ -326,8 +360,8 @@ import ij.Prefs;
     **/
     public void setSpeedUnit(String unit) {
         try {
-            if ("ms".equals(unit)) sendMessage("000020SET VarSpeedUnit(ms)");
-            else sendMessage("000020SET VarSpeedUnit(µs)");
+            if ("ms".equals(unit)) sendMessage("000019SET VarSpeedUnit ms");
+            else sendMessage("000019SET VarSpeedUnit µs");
         } catch (Exception e) {      
         }
     }
@@ -367,6 +401,15 @@ import ij.Prefs;
         public void getStatus() {
             try {
                 sendMessage("000018GET SCANNER STATUS");
+            } catch (Exception e) {
+            }
+        }
+        /**
+         * get the compact RIO status
+         */       
+        public void getMap() {
+            try {
+                sendMessage("000009GET IMAGE");
             } catch (Exception e) {
             }
         }
@@ -445,11 +488,12 @@ import ij.Prefs;
          * @return le message reçu
          * @throws IOException 
          */
-        private String read(int size) throws IOException{
+        public String read(int size) throws IOException{
             int stream;
-            byte[] b = new byte[size];
-            stream = reader.read(b);
-            String response = new String(b, 0, stream);
+            byte[] word = new byte[size];
+            stream = reader.read(word);
+            String response = new String(word, 0, stream);
+            
             return response;
         }
         /**
@@ -460,7 +504,7 @@ import ij.Prefs;
             try {
                 logMessage(" >> " + message);
                 sendMessage(message.getBytes(),message.length());
-            } catch(Exception e) {   
+            } catch(Exception sendMessageException) {   
             }
         }
         /**
@@ -474,7 +518,7 @@ import ij.Prefs;
              out.flush();
              }
              //writer.flush();
-              catch(IOException e) {   
+              catch(IOException outException) {   
          }
         }
             /**
@@ -587,7 +631,7 @@ import ij.Prefs;
                     //si bit15=0 et bit 14 =0 alors mode temps par point
                     //16383 = 0x0011 1111 1111 1111
                     else 
-                        p = (short)(dose & 16383);
+                        p = (short)(dose | 16383);
                     //logMessage("Time per point" + Integer.toString(p));
                     positionsBuffer.put(dx).put(dy).putShort(p);
                 }
@@ -601,7 +645,195 @@ import ij.Prefs;
             sendMessage(message.getBytes(),message.length());
             sendMessage(positionsBuffer.array(),positionsBuffer.capacity());
   }
-    
+    /**
+     * Sending position list to CRIO with a dose pattern
+     * @param positionsList
+     * @param digitalList
+     * @param TimeMode
+     * @param dose list of doses for irradiated points
+     */
+  public void sendPositionList(List<Point> positionsList, List<Point> digitalList,int TimeMode, List<Integer> dose) {
+        
+        
+        // Création d'un bytebuffer de 8 octets que l'on remplit avec x, y , dx
+        ByteBuffer positionsBuffer = ByteBuffer.allocate(8*positionsList.size());
+        logMessage("N points : " + positionsList.size());
+        try {
+            if (positionsList.size()>1 & TimeMode == 1) sendMessage("000011SET NO WAIT");
+            if (TimeMode==0) sendMessage("000011SET NO WAIT");
+            if (TimeMode == 1 & positionsList.size()==1) sendMessage("000008SET WAIT");
+        } catch (Exception e) {
+        }
+        
+        //Envoi de toutes les valeurs analogiques des points
+        for(int index=0; index < positionsList.size(); index++){
+        short x = (short) positionsList.get(index).x;
+        short y = (short) positionsList.get(index).y;
+        positionsBuffer.putShort(x).putShort(y);
+        }
+        switch (TimeMode){
+            //Ion per point mode
+            case 0:
+                //Envoi de toutes les valeurs digitales des points
+                for(int index=0; index < digitalList.size(); index++) {
+                    byte dx = (byte) digitalList.get(index).x;
+                    byte dy = (byte) digitalList.get(index).y;
+                    short p;
+                    //si bit15=0 et bit 14 =1 alors mode temps par point
+                    //16384 = 0x0100 0000 0000 0000
+                    //Si c'est le dernier point de la liste, bit 15=1 et bit14=1
+                    //-16384 = 0x1100 0000 0000 0000
+                    if (index==positionsList.size()-1)
+                        p = (short)(dose.get(index) | -16384);
+                    
+                    else 
+                        p = (short)(dose.get(index) | 16384);
+                    //logMessage("Ions par point: " + Integer.toString(p));
+                    positionsBuffer.put(dx).put(dy).putShort(p);
+                    //logMessage(Short.toString(p));
+                }
+                break;
+            //Time per point mode    
+            case 1:
+                //Envoi de toutes les valeurs digitales des points
+                for(int index=0; index < digitalList.size(); index++) {
+                    byte dx = (byte) digitalList.get(index).x;
+                    byte dy = (byte) digitalList.get(index).y;
+                    short p;
+                    //Si c'est le dernier point de la liste, bit 15=1 et bit14=0
+                    //-32768 = 0x1000 0000 0000 0000
+                    if (index==positionsList.size()-1){
+                        p = (short)(dose.get(index) | -32768);
+                    //si bit15=0 et bit 14 =0 alors mode temps par point
+                    //16383 = 0x0011 1111 1111 1111
+                    }
+                    else {
+                        p = (short)(dose.get(index) & 16383);
+                    //logMessage("Time per point" + Integer.toString(p));
+                    }
+                    positionsBuffer.put(dx).put(dy).putShort(p);
+                    logMessage(Short.toString(p));
+                    //logMessage("Dose sent: " + Integer.toString(dose.get(index)));
+                }
+                
+            
+                
+        }       
+            String message=formatMessage(positionsList.size()*8,"SCAN DATA = ");
+            logMessage(message);
+            
+            sendMessage(message.getBytes(),message.length());
+            sendMessage(positionsBuffer.array(),positionsBuffer.capacity());
+  }
+/**
+     * Sending position list to CRIO with a dose pattern
+     * @param positionsList
+     * @param digitalList
+     * @param TimeMode
+     * @param dose list of doses for irradiated points
+     * @param bufferSize number of points to sent to CRIO at once
+     */
+  public void sendPositionList(List<Point> positionsList, List<Point> digitalList,int TimeMode, List<Integer> dose, int bufferSize) {
+        
+        int pointToSend=positionsList.size();
+        ByteBuffer positionsBuffer=ByteBuffer.allocate(1);
+        int start=0;
+        int stop=0;
+        
+        while (pointToSend>0){
+        
+            // Création d'un bytebuffer de 8 octets que l'on remplit avec x, y , dx
+            
+            if (pointToSend>=bufferSize) {
+                positionsBuffer = ByteBuffer.allocate(8*positionsList.size());
+                logMessage("Sending N points : " + bufferSize);
+                start=positionsList.size()-pointToSend;
+                stop=start+bufferSize;
+            }
+            else if (pointToSend<bufferSize) {
+                positionsBuffer = ByteBuffer.allocate(8*pointToSend);
+                logMessage("Sending N points : " + pointToSend);
+                start=positionsList.size()-pointToSend;
+                stop=start+pointToSend;
+            }
+            
+            try {
+                if (pointToSend>1 & TimeMode == 1) sendMessage("000011SET NO WAIT");
+                if (TimeMode==0) sendMessage("000011SET NO WAIT");
+                if (TimeMode == 1 & pointToSend==1) sendMessage("000008SET WAIT");
+            } catch (Exception e) {
+            }
+
+            //Envoi de toutes les valeurs analogiques des points
+            for(int index=start; index < stop; index++){
+            short x = (short) positionsList.get(index).x;
+            short y = (short) positionsList.get(index).y;
+            positionsBuffer.putShort(x).putShort(y);
+            }
+            switch (TimeMode){
+                //Ion per point mode
+                case 0:
+                    //Envoi de toutes les valeurs digitales des points
+                    for(int index=start; index < stop; index++) {
+                        byte dx = (byte) digitalList.get(index).x;
+                        byte dy = (byte) digitalList.get(index).y;
+                        short p;
+                        //si bit15=0 et bit 14 =1 alors mode temps par point
+                        //16384 = 0x0100 0000 0000 0000
+                        //Si c'est le dernier point de la liste, bit 15=1 et bit14=1
+                        //-16384 = 0x1100 0000 0000 0000
+                        if (index==stop-1)
+                            p = (short)(dose.get(index) | -16384);
+
+                        else 
+                            p = (short)(dose.get(index) | 16384);
+                        //logMessage("Ions par point: " + Integer.toString(p));
+                        positionsBuffer.put(dx).put(dy).putShort(p);
+                        //logMessage(Short.toString(p));
+                    }
+                    break;
+                //Time per point mode    
+                case 1:
+                    //Envoi de toutes les valeurs digitales des points
+                    for(int index=start; index < stop; index++) {
+                        byte dx = (byte) digitalList.get(index).x;
+                        byte dy = (byte) digitalList.get(index).y;
+                        short p;
+                        //Si c'est le dernier point de la liste, bit 15=1 et bit14=0
+                        //-32768 = 0x1000 0000 0000 0000
+                        if (index==stop-1){
+                            p = (short)(dose.get(index) | -32768);
+                        //si bit15=0 et bit 14 =0 alors mode temps par point
+                        //16383 = 0x0011 1111 1111 1111
+                        }
+                        else {
+                            p = (short)(dose.get(index) & 16383);
+                        //logMessage("Time per point" + Integer.toString(p));
+                        }
+                        positionsBuffer.put(dx).put(dy).putShort(p);
+                        logMessage(Short.toString(p));
+                        //logMessage("Dose sent: " + Integer.toString(dose.get(index)));
+                    }
+
+
+
+            }
+                String message="";
+                if (pointToSend>bufferSize) {
+                    message=formatMessage(bufferSize*8,"SCAN DATA = ");
+                    logMessage(message);
+                }
+                else if (pointToSend<bufferSize){
+                    message=formatMessage(pointToSend*8,"SCAN DATA = ");
+                    logMessage(message);
+                }
+
+                sendMessage(message.getBytes(),message.length());
+                sendMessage(positionsBuffer.array(),positionsBuffer.capacity());
+                
+                pointToSend-=bufferSize;
+        }
+  }  
         /**
          * Send a single beam position to the compact RIO
          * @param pt 
@@ -637,13 +869,17 @@ import ij.Prefs;
    
         public String readMessage() {
             try {
+                int taille=0;
                 reader = null;
                 reader = new BufferedInputStream(socketOut.getInputStream());
-                String response = read(6);         
+                String response = read(6);
+
                 response = response.replace(" ", "");            
-                int taille = Integer.parseInt(response); 
+                taille = Integer.parseInt(response);
                 response = read(taille);
+                
                 return response;
+                
             } catch (IOException e) {
                 String response;
                 response = "Fail to read message: IO exception";
