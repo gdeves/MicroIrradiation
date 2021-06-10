@@ -40,6 +40,7 @@ import org.micromanager.api.ScriptInterface;
 import org.micromanager.utils.*;
 import org.micromanager.SnapLiveManager;
 import org.micromanager.MMStudio;
+import java.math.BigInteger;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -124,6 +125,39 @@ public class IrradiationFrame extends javax.swing.JFrame {
      * Access beam status
      * @return 
      */
+    public void setMap(String message){
+        char  sy=message.charAt(7);
+        char  sx=message.charAt(8);
+        int mapWidth=(int)sy;
+        int mapHeight=(int)sx;
+        logMessage("Map: " + Integer.toString(mapWidth) + " x " + Integer.toString(mapHeight));
+        if (mapWidth*mapHeight>0){  
+            ShortProcessor ip=new ShortProcessor(mapWidth,mapHeight);
+            int index=9;
+            for (int i=0;i<mapWidth;i++){
+                for (int j=0;i<mapHeight;j++){
+                    byte big=(byte)message.charAt(index);
+                    byte little=(byte)message.charAt(index+1);
+                    byte[] pixel_bytes={big,little};
+                    BigInteger pixel=new BigInteger(1,pixel_bytes);
+                    //logMessage("Pixel : " + pixel.toString());
+                    ip.putPixel(i,j,pixel.intValue());
+                    index+=2;
+                }
+            }
+            ImagePlus image = new ImagePlus("Beam", ip);
+            image.show();
+        }
+        
+        
+        
+        
+        }
+    
+    /**
+     * Access beam status
+     * @return 
+     */
     public boolean getBeamStatus(){
         return isBeamOn;
     }
@@ -203,7 +237,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         jB_GetImage = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Microbeam irradiation v03-2021");
+        setTitle("Microbeam irradiation v06-2021");
         setAlwaysOnTop(true);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -1105,7 +1139,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
         
         //Getting the point list from the roi manager
         else if (jRB_ROImanager.isSelected()){
-            logMessage("calc via RM selected");
+            
             RoiManager rm = RoiManager.getInstance();
             if (rm==null) rm = new RoiManager();
             
@@ -1230,34 +1264,34 @@ public class IrradiationFrame extends javax.swing.JFrame {
     private void getStatus(){
         statusThreadIsOn = !statusThreadIsOn;
         
-        Thread getStatusThread = new Thread(new Runnable() { // bouton Start (thread)
-            @Override public void run() {
-                if (statusThreadIsOn) crio.sendMessage("000018GET SCANNER STATUS");
-                while (statusThreadIsOn) {
-                    jB_connectToRio.setVisible(false);
-                    String s = crio.readMessage();
-                    if (jCheckBox_showFlux.isSelected()) logMessage(" --Received -- ");
-                    if (jCheckBox_showFlux.isSelected()) logMessage(s);
-                    if (s.startsWith("=")) {
-                        //logMessage(s.substring(9));
-                        logMessage("image found : " + s);
-                    }
-                    else if (s.contains("SCANNING")) {
-                        isBeamOn=true;
-                        jLabel_status.setText("Status : ON");
-                        jB_StartStop.setForeground(Color.red);
-                        jB_StartStop.setText("Stop");
-                    }
-                    else if (s.contains("SCAN OFF")) {
-                        isBeamOn=false;
-                        jLabel_status.setText("Status : OFF");
-                        jB_StartStop.setForeground(Color.black);
-                        jB_StartStop.setText("Start");
-                    }
-                    else jLabel_status.setText("Status : ??");
-                }
-            }
-        });
+        Thread getStatusThread;
+       getStatusThread = new Thread(new Runnable() { // bouton Start (thread)
+           @Override public void run() {
+               if (statusThreadIsOn) crio.sendMessage("000018GET SCANNER STATUS");
+               while (statusThreadIsOn) {
+                   jB_connectToRio.setVisible(false);
+                   String s = crio.readMessage();
+                   if (jCheckBox_showFlux.isSelected()) logMessage(" --Received -- ");
+                   if (jCheckBox_showFlux.isSelected()) logMessage(s);
+                   if (s.startsWith("Image =")) {
+                       setMap(s);                      
+                   }
+                   else if (s.contains("SCANNING")) {
+                       isBeamOn=true;
+                       jLabel_status.setText("Status : ON");
+                       jB_StartStop.setForeground(Color.red);
+                       jB_StartStop.setText("Stop");
+                   }
+                   else if (s.contains("SCAN OFF")) {
+                       isBeamOn=false;
+                       jLabel_status.setText("Status : OFF");
+                       jB_StartStop.setForeground(Color.black);
+                       jB_StartStop.setText("Start");
+                   }
+                   else jLabel_status.setText("Status : ??");
+               }
+           }
+       });
         getStatusThread.start();
         
         if (statusThreadIsOn) logMessage("-- Demarrage du thread - Get Status");
@@ -1386,7 +1420,7 @@ public class IrradiationFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jRB_variableTimeActionPerformed
 
     private void jB_GetImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jB_GetImageActionPerformed
-        crio.sendMessage("GET IMAGE");
+        crio.sendMessage("000009GET IMAGE");
         
        
        

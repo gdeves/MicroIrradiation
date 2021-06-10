@@ -383,7 +383,9 @@ import ij.Prefs;
     * @return the string message to be sent
     */
     public String formatMessage(String instruction){
-       String message = "0000"+ String.valueOf((instruction).length()) + instruction;
+       String message="";
+        if (instruction.length()<10)message = "00000"+ String.valueOf((instruction).length()) + instruction;
+        else if (instruction.length()>9) message = "0000"+ String.valueOf((instruction).length()) + instruction;
        return message;
     }
     //------------------------------------------------
@@ -493,7 +495,6 @@ import ij.Prefs;
             byte[] word = new byte[size];
             stream = reader.read(word);
             String response = new String(word, 0, stream);
-            
             return response;
         }
         /**
@@ -873,7 +874,7 @@ import ij.Prefs;
                 reader = null;
                 reader = new BufferedInputStream(socketOut.getInputStream());
                 String response = read(6);
-
+                
                 response = response.replace(" ", "");            
                 taille = Integer.parseInt(response);
                 response = read(taille);

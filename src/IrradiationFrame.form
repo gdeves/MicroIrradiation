@@ -15,7 +15,7 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
-    <Property name="title" type="java.lang.String" value="Microbeam irradiation v03-2021"/>
+    <Property name="title" type="java.lang.String" value="Microbeam irradiation v06-2021"/>
     <Property name="alwaysOnTop" type="boolean" value="true"/>
   </Properties>
   <SyntheticProperties>
